@@ -13,7 +13,12 @@ class BeerClientImplTest {
     BeerClientImpl beerClient;
 
     @Test
+    void listBeersNoName() {
+        beerClient.listBeers(null);
+    }
+
+    @Test
     void listBeers() {
-        beerClient.listBeers();
+        beerClient.listBeers("ALE");
     }
 }

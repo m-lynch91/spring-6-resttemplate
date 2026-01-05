@@ -19,12 +19,16 @@ public class BeerClientImpl implements BeerClient {
     private final RestTemplateBuilder restTemplateBuilder;
 
     @Override
-    public Page<BeerDTO> listBeers() {
+    public Page<BeerDTO> listBeers(String beerName) {
         RestTemplate restTemplate = restTemplateBuilder.build();
 
         // Spring will use the base URL from RestTemplate in conjuction with GET_BEERS_PATH
         // components builder allows for us to utilize query params easier
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromPath(GET_BEERS_PATH);
+
+        if (beerName != null) {
+            uriComponentsBuilder.queryParam("beerName", beerName);
+        }
 
         ResponseEntity<BeerDTOPageImpl> response = restTemplate.getForEntity(uriComponentsBuilder.toUriString(), BeerDTOPageImpl.class);
 
