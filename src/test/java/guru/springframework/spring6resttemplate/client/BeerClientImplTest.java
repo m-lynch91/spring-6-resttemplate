@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
@@ -50,6 +50,7 @@ class BeerClientImplTest {
 
     @Test
     void testCreateBeer() {
+        // arrange - create a new beer dto to send in post
         BeerDTO newDto = BeerDTO.builder()
                 .beerName("Mike's Beer 2")
                 .beerStyle(BeerStyle.LAGER)
@@ -65,6 +66,7 @@ class BeerClientImplTest {
 
     @Test
     void testUpdateBeer() {
+        // arrange - create beer object to send in put
         BeerDTO newDto = BeerDTO.builder()
                 .beerName("Mike's Beer - Updated")
                 .beerStyle(BeerStyle.LAGER)
@@ -72,13 +74,35 @@ class BeerClientImplTest {
                 .quantityOnHand(500)
                 .upc("123456789012")
                 .build();
-
         BeerDTO beerDto = beerClient.createBeer(newDto);
         final String newName = "Mike's Beer - New Name";
         beerDto.setBeerName(newName);
+
+        // act
         BeerDTO updatedBeer = beerClient.updateBeer(beerDto);
 
+        // assert
         assertEquals(newName, updatedBeer.getBeerName());
+    }
 
+    @Test
+    void testDeleteBeer() {
+        // arrange - create beer object to send in delete
+        BeerDTO newDto = BeerDTO.builder()
+                .beerName("Mike's Beer to Delete")
+                .beerStyle(BeerStyle.LAGER)
+                .price(new BigDecimal("6.99"))
+                .quantityOnHand(500)
+                .upc("123456789012")
+                .build();
+        BeerDTO beerDto = beerClient.createBeer(newDto);
+
+        // act
+        beerClient.deleteBeer(beerDto.getId());
+
+        // assert
+        assertThrows(HttpClientErrorException.class, () -> {
+            beerClient.getBeerById(beerDto.getId());
+        });
     }
 }
