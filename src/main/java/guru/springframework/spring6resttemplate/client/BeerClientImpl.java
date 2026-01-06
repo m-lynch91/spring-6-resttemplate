@@ -11,21 +11,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Service
 public class BeerClientImpl implements BeerClient {
 
     private static final String GET_BEERS_PATH = "/api/v1/beers";
+    private static final String GET_BEERS_BY_ID_PATH = "/api/v1/beers/{beerId}";
 
     private final RestTemplateBuilder restTemplateBuilder;
 
     @Override
-    public Page<BeerDTO> listBeers() {
-        return this.listBeers(null, null, null, null, null);
+    public Page<BeerDTO> getBeers() {
+        return this.getBeers(null, null, null, null, null);
     }
 
     @Override
-    public Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean showInventory, Integer pageNumber, Integer pageSize) {
+    public Page<BeerDTO> getBeers(String beerName, BeerStyle beerStyle, Boolean showInventory, Integer pageNumber, Integer pageSize) {
         RestTemplate restTemplate = restTemplateBuilder.build();
 
         // Spring will use the base URL from RestTemplate in conjuction with GET_BEERS_PATH
@@ -51,5 +54,11 @@ public class BeerClientImpl implements BeerClient {
         ResponseEntity<BeerDTOPageImpl> response = restTemplate.getForEntity(uriComponentsBuilder.toUriString(), BeerDTOPageImpl.class);
 
         return response.getBody();
+    }
+
+    @Override
+    public BeerDTO getBeerById(UUID beerId) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        return restTemplate.getForObject(GET_BEERS_BY_ID_PATH, BeerDTO.class, beerId);
     }
 }
