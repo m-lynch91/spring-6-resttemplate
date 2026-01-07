@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.BindErrorUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
@@ -51,12 +52,17 @@ public class BeerClientMockTest {
     @Mock
     RestTemplateBuilder mockRestTemplateBuilder = new RestTemplateBuilder(new MockServerRestTemplateCustomizer());
 
+    BeerDTO testDto;
+    String dtoJson;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws JsonProcessingException {
         RestTemplate restTemplate = restTemplateBuilderConfigured.build();
         server = MockRestServiceServer.bindTo(restTemplate).build();
         when(mockRestTemplateBuilder.build()).thenReturn(restTemplate);
         beerClient = new BeerClientImpl(mockRestTemplateBuilder);
+        testDto = getBeerDto();
+        dtoJson = objectMapper.writeValueAsString(testDto);
     }
 
     @Test
@@ -76,15 +82,11 @@ public class BeerClientMockTest {
     }
 
     @Test
-    void testGetBeerById() throws JsonProcessingException {
-        // arrange
-        BeerDTO testDto = getBeerDto();
-        String payload = objectMapper.writeValueAsString(testDto);
-
+    void testGetBeerById() {
         // act
         server.expect(method(HttpMethod.GET))
                 .andExpect(requestToUriTemplate(URL + BeerClientImpl.GET_BEERS_BY_ID_PATH, testDto.getId()))
-                .andRespond(withSuccess(payload, APPLICATION_JSON));
+                .andRespond(withSuccess(dtoJson, APPLICATION_JSON));
         BeerDTO responseDto = beerClient.getBeerById(testDto.getId());
 
         // assert
@@ -107,13 +109,10 @@ public class BeerClientMockTest {
     }
 
     @Test
-    void testCreateBeer() throws JsonProcessingException {
+    void testCreateBeer() {
         // arrange
-        BeerDTO testDto = getBeerDto();
-        String payload = objectMapper.writeValueAsString(testDto);
         URI uri = UriComponentsBuilder.fromPath(BeerClientImpl.GET_BEERS_BY_ID_PATH)
                 .build(testDto.getId());
-
 
         // act
         server.expect(method(HttpMethod.POST))
@@ -122,7 +121,7 @@ public class BeerClientMockTest {
 
         server.expect(method(HttpMethod.GET))
                 .andExpect(requestToUriTemplate(URL + BeerClientImpl.GET_BEERS_BY_ID_PATH, testDto.getId()))
-                .andRespond(withSuccess(payload, APPLICATION_JSON));
+                .andRespond(withSuccess(dtoJson, APPLICATION_JSON));
 
         BeerDTO responseDto = beerClient.createBeer(testDto);
 
