@@ -29,6 +29,11 @@ public class BeerClientImpl implements BeerClient {
     }
 
     @Override
+    public Page<BeerDTO> getBeers(String beerName) {
+        return this.getBeers(beerName, null, null, null, null);
+    }
+
+    @Override
     public Page<BeerDTO> getBeers(String beerName, BeerStyle beerStyle, Boolean showInventory, Integer pageNumber, Integer pageSize) {
         RestTemplate restTemplate = restTemplateBuilder.build();
 
