@@ -18,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -27,6 +29,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withAccepted;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @RestClientTest
@@ -101,5 +104,29 @@ public class BeerClientMockTest {
 
     BeerDTOPageImpl getPage() {
         return new BeerDTOPageImpl(Arrays.asList(getBeerDto()), 1, 25, 1);
+    }
+
+    @Test
+    void testCreateBeer() throws JsonProcessingException {
+        // arrange
+        BeerDTO testDto = getBeerDto();
+        String payload = objectMapper.writeValueAsString(testDto);
+        URI uri = UriComponentsBuilder.fromPath(BeerClientImpl.GET_BEERS_BY_ID_PATH)
+                .build(testDto.getId());
+
+
+        // act
+        server.expect(method(HttpMethod.POST))
+                .andExpect(requestTo(URL + BeerClientImpl.GET_BEERS_PATH))
+                .andRespond(withAccepted().location(uri));
+
+        server.expect(method(HttpMethod.GET))
+                .andExpect(requestToUriTemplate(URL + BeerClientImpl.GET_BEERS_BY_ID_PATH, testDto.getId()))
+                .andRespond(withSuccess(payload, APPLICATION_JSON));
+
+        BeerDTO responseDto = beerClient.createBeer(testDto);
+
+        // assert
+        assertThat(responseDto.getId()).isEqualTo(testDto.getId());
     }
 }
