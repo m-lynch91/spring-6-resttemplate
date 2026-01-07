@@ -18,8 +18,8 @@ import java.util.UUID;
 @Service
 public class BeerClientImpl implements BeerClient {
 
-    private static final String GET_BEERS_PATH = "/api/v1/beers";
-    private static final String GET_BEERS_BY_ID_PATH = "/api/v1/beers/{beerId}";
+    public static final String GET_BEERS_PATH = "/api/v1/beers";
+    public static final String GET_BEERS_BY_ID_PATH = "/api/v1/beers/{beerId}";
 
     private final RestTemplateBuilder restTemplateBuilder;
 
