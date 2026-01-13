@@ -13,6 +13,12 @@ public class RestTemplateBuilderConfig {
     @Value("${rest.template.rootUrl}")
     String rootUrl;
 
+    @Value("${rest.template.username}")
+    String username;
+
+    @Value("${rest.template.password}")
+    String password;
+
     @Bean
     RestTemplateBuilder restTemplateBuilder(RestTemplateBuilderConfigurer configurer) { // this will override the default spring boot builder
 
@@ -21,7 +27,7 @@ public class RestTemplateBuilderConfig {
         RestTemplateBuilder builder = configurer.configure(new RestTemplateBuilder());
         DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory(rootUrl);
 
-        RestTemplateBuilder builderWithAuth = builder.basicAuthentication("user1", "password");
+        RestTemplateBuilder builderWithAuth = builder.basicAuthentication(username, password);
 
         return builderWithAuth.uriTemplateHandler(uriBuilderFactory);
     }
